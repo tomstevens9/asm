@@ -1,0 +1,4 @@
+#!/bin/sh
+# Script for running assembly programs inside the asm container
+cd programs/$1/bin
+./$1

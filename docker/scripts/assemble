@@ -1,0 +1,6 @@
+#!/bin/sh
+# Script for building assembly programs inside the asm container
+cd programs/$1
+as $1.s -o $1.o
+mkdir bin  # place all executables into a bin directory so they can be ignored by git
+ld $1.o -o bin/$1
