@@ -1,3 +1,3 @@
 #!/bin/bash
 # Simple wrapper script for envoking the run command inside the asm container
-docker run -it -v /Users/tom/asm/programs:/app/programs asm run "$@"
+docker run -v /Users/tom/asm/programs:/app/programs asm run "$@"
