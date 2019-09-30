@@ -1,7 +1,8 @@
-FROM alpine
+FROM fedora
 
 # install as and ld
-RUN apk add build-base  
+RUN dnf groupinstall -y 'Development Tools'
+RUN dnf install -y gdb
 
 # copy scripts directory and add it to the path
 COPY scripts /scripts
