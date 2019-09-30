@@ -27,40 +27,39 @@ _start:
     fstcw FPU_CW_OLD        # pull out the current control word
     mov FPU_CW_OLD, %ax     # move the control word into a register
     andb $FPU_CW_MASK, %ah  # mask the control word to zero out bits 8-11
-    orw %ax, FPU_CW_NEW     # xor control word with FPU_CW_NEW to set 
+    orw %ax, FPU_CW_NEW     # xor control word with FPU_CW_NEW to set
                             # bits 10/11 to 01. FPU_CW_NEW already has 
                             # the correct bits set for bits 8/9
                             # Nothing needs to be done for bits 8/9 as the
                             # masking process already set them to 00
-    fldcw FPU_CW_NEW
+    fldcw FPU_CW_NEW        # load in the new control word
     # ---------- END FPU SETUP ----------
 
-    mov 16(%rsp), %rdi      # move pointer to first command
-                            # line argument to rdi
-    call str_to_int         # call atoi to convert command
-                            # line argument to int
+    mov 16(%rsp), %rdi      # convert first command line argument
+    call str_to_int         # to int
+
     mov %rax, %r12          # r12 is how many primes we want to count
     xor %r13, %r13          # r13 is how many prime numbers that have been found
     xor %r15, %r15          # r15 is the current number being checked
 
     start_loop:
-    inc %r15
+        inc %r15
 
-    mov %r15, %rdi
-    call is_prime           # call is_prime 
+        mov %r15, %rdi
+        call is_prime           # call is_prime
 
-    cmp $0, %rax            # restart loop if not prime
-    je start_loop
-    
-    inc %r13                # have we found enough primes?
-    cmp %r13, %r12         
-    jne start_loop
+        cmp $0, %rax            # restart loop if not prime
+        je start_loop
+
+        inc %r13                # if prime is found, check if
+        cmp %r13, %r12          # we've found the amount specified
+        jne start_loop          # by the command line argument
 
     mov %r15, %rdi
     call print_integer
-    
+
     # exit successfully
-    xor %rdi, %rdi          
+    xor %rdi, %rdi
     mov $SYS_EXIT, %rax
     syscall
 
@@ -74,11 +73,11 @@ str_to_int:
                             # by 10 for each iteration of the loop
     xor %r12, %r12            # %r12 is our running total
     my_loop_start:
-    xor %rdx, %rdx            # clear rdx
+    xor %rdx, %rdx          # clear rdx
     dec %r13                # start by deincrementing index as first index
                             # is one less than the string length
     movb (%rdi, %r13, 1), %dl
-    sub $ASCII_OFFSET, %rdx 
+    sub $ASCII_OFFSET, %rdx
     mov %rcx, %rax
     mul %rdx
     mov %rax, %rdx
@@ -97,7 +96,7 @@ str_to_int:
 int_to_str:
     # convert input to reverse string
     push %rbx
-    push %r12 
+    push %r12
     push %r13
     push %r14
 
@@ -125,7 +124,7 @@ int_to_str:
     xor %r13, %r13
 
     reverse_loop_start:
-    cmp $0, %rcx 
+    cmp $0, %rcx
     jl reverse_loop_end
     xor %r14, %r14
     movb TEMP_CONVERT_BUFFER(%rcx, 1), %r14b
@@ -149,7 +148,7 @@ int_to_str:
 print_integer:
     # convert number to ascii representation
     call int_to_str
-    
+
     mov $CONVERT_BUFFER, %rdi
     call count_characters   # count number length for write
                             # syscall
@@ -170,12 +169,12 @@ print_integer:
 
 .type count_characters,@function
 count_characters:
-    mov $-1, %rax    
-    loop_start: 
-    inc %rax
-    mov (%rax, %rdi, 1), %cl
-    cmpb $0, %cl
-    jne loop_start
+    mov $-1, %rax
+    cc_loop_start:
+        inc %rax
+        mov (%rax, %rdi, 1), %cl
+        cmpb $0, %cl
+        jne cc_loop_start
     ret
 
 .type is_prime,@function
